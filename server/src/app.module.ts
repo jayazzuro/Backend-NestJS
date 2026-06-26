@@ -6,7 +6,8 @@ import databaseConfig from './config/database.config';
 
 import { UsersModule } from './users/users.module';
 import { GiftsModule } from './gifts/gifts.module';
-// import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/auth.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { GiftsModule } from './gifts/gifts.module';
 
     UsersModule,
     GiftsModule,
-    // AuthModule,
+    AuthModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
