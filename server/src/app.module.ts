@@ -4,6 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import databaseConfig from './config/database.config';
 
+import { UsersModule } from './users/users.module';
+import { GiftsModule } from './gifts/gifts.module';
+// import { AuthModule } from './auth/auth.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -13,25 +17,28 @@ import databaseConfig from './config/database.config';
 
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
 
-        host: configService.get('database.host'),
+        host: configService.get<string>('database.host'),
 
-        port: configService.get('database.port'),
+        port: configService.get<number>('database.port'),
 
-        username: configService.get('database.username'),
+        username: configService.get<string>('database.username'),
 
-        password: configService.get('database.password'),
+        password: configService.get<string>('database.password'),
 
-        database: configService.get('database.database'),
+        database: configService.get<string>('database.database'),
 
         autoLoadEntities: true,
 
         synchronize: false,
       }),
     }),
+
+    UsersModule,
+    GiftsModule,
+    // AuthModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}
