@@ -1,3 +1,13 @@
+function resolveJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return secret;
+}
+
 export const jwtConstants = {
-  secret: process.env.JWT_SECRET || 'mysecretkey123456',
+  get secret(): string {
+    return resolveJwtSecret();
+  },
 };

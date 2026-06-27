@@ -18,6 +18,7 @@ export class Gift {
 
   @Column({
     type: 'text',
+    default: '',
   })
   description: string;
 

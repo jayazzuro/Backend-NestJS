@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
   ParseIntPipe,
   HttpCode,
@@ -23,9 +24,10 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 
-import { AdminService } from './admin.service';
-import { CreateGiftDto } from './dto/create-gift.dto';
-import { UpdateGiftDto } from './dto/update-gift.dto';
+import { GiftsService } from '../gifts/gifts.service';
+import { CreateGiftDto } from '../gifts/dto/create-gift.dto';
+import { UpdateGiftDto } from '../gifts/dto/update-gift.dto';
+import { GetGiftsQueryDto } from '../gifts/dto/get-gifts-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -37,7 +39,7 @@ import { Role } from '../common/enums/role.enum';
 @Roles(Role.ADMIN)
 @Controller('admin/gifts')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly giftsService: GiftsService) { }
 
   @Post()
   @ApiOperation({
@@ -48,7 +50,7 @@ export class AdminController {
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ApiForbiddenResponse({ description: 'Không có quyền ADMIN' })
   async create(@Body() createGiftDto: CreateGiftDto) {
-    const gift = await this.adminService.createGift(createGiftDto);
+    const gift = await this.giftsService.create(createGiftDto);
     return {
       message: 'Tạo quà tặng thành công',
       data: gift,
@@ -58,16 +60,17 @@ export class AdminController {
   @Get()
   @ApiOperation({
     summary: 'Danh sách tất cả quà (admin)',
-    description: 'Chỉ ADMIN mới xem được toàn bộ danh sách',
+    description: 'Chỉ ADMIN mới xem được danh sách có phân trang',
   })
-  @ApiOkResponse({ description: 'Danh sách quà tặng' })
+  @ApiOkResponse({ description: 'Danh sách quà tặng kèm metadata phân trang' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ApiForbiddenResponse({ description: 'Không có quyền ADMIN' })
-  async findAll() {
-    const gifts = await this.adminService.findAllGifts();
+  async findAll(@Query() query: GetGiftsQueryDto) {
+    const result = await this.giftsService.findAll(query);
     return {
       message: 'Lấy danh sách quà tặng thành công',
-      data: gifts,
+      data: result.items,
+      meta: result.meta,
     };
   }
 
@@ -82,7 +85,7 @@ export class AdminController {
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ApiForbiddenResponse({ description: 'Không có quyền ADMIN' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
-    const gift = await this.adminService.findGiftById(id);
+    const gift = await this.giftsService.findOne(id);
     return {
       message: 'Lấy thông tin quà tặng thành công',
       data: gift,
@@ -99,11 +102,8 @@ export class AdminController {
   @ApiNotFoundResponse({ description: 'Không tìm thấy quà tặng' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ApiForbiddenResponse({ description: 'Không có quyền ADMIN' })
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateGiftDto: UpdateGiftDto,
-  ) {
-    const gift = await this.adminService.updateGift(id, updateGiftDto);
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updateGiftDto: UpdateGiftDto) {
+    const gift = await this.giftsService.update(id, updateGiftDto);
     return {
       message: 'Cập nhật quà tặng thành công',
       data: gift,
@@ -122,7 +122,7 @@ export class AdminController {
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ApiForbiddenResponse({ description: 'Không có quyền ADMIN' })
   async remove(@Param('id', ParseIntPipe) id: number) {
-    await this.adminService.deleteGift(id);
+    await this.giftsService.remove(id);
     return {
       message: 'Xóa quà tặng thành công',
     };

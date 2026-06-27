@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+  ValidateIf,
+} from 'class-validator';
 
 export class UpdateProfileDto {
   @ApiProperty({
@@ -8,7 +16,10 @@ export class UpdateProfileDto {
     required: false,
   })
   @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   @IsString()
+  @IsNotEmpty({ message: 'Tên đăng nhập không được để trống' })
+  @MaxLength(100, { message: 'Tên đăng nhập tối đa 100 ký tự' })
   username?: string;
 
   @ApiProperty({
@@ -17,7 +28,9 @@ export class UpdateProfileDto {
     required: false,
   })
   @IsOptional()
-  @IsEmail()
+  @ValidateIf((_, value) => value !== undefined)
+  @IsEmail({}, { message: 'Email không hợp lệ' })
+  @IsNotEmpty({ message: 'Email không được để trống' })
   email?: string;
 
   @ApiProperty({
@@ -27,6 +40,9 @@ export class UpdateProfileDto {
     minLength: 6,
   })
   @IsOptional()
-  @MinLength(6)
+  @ValidateIf((_, value) => value !== undefined)
+  @IsString()
+  @IsNotEmpty({ message: 'Mật khẩu không được để trống' })
+  @MinLength(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' })
   password?: string;
 }

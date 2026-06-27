@@ -13,8 +13,7 @@ export class SeedGifts1782460439377 implements MigrationInterface {
       },
       {
         name: 'Voucher Grab 50k',
-        description:
-          'Voucher giảm giá 50.000đ cho chuyến xe hoặc đồ ăn trên Grab',
+        description: 'Voucher giảm giá 50.000đ cho chuyến xe hoặc đồ ăn trên Grab',
         point: 30,
         quantity: 200,
       },
@@ -45,11 +44,9 @@ export class SeedGifts1782460439377 implements MigrationInterface {
     ];
 
     for (const gift of gifts) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const existing: any[] = await queryRunner.query(
-        `SELECT * FROM "gifts" WHERE "name" = $1`,
-        [gift.name],
-      );
+      const existing = (await queryRunner.query(`SELECT * FROM "gifts" WHERE "name" = $1`, [
+        gift.name,
+      ])) as unknown[];
 
       if (existing.length === 0) {
         await queryRunner.query(

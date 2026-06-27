@@ -1,19 +1,16 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from './users.repository';
 import { User } from './entities/user.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { PublicUser } from '../common/types/public-user.type';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async findById(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findByIdWithPassword(id);
     if (!user) {
       throw new NotFoundException('Không tìm thấy người dùng');
     }
@@ -28,10 +25,7 @@ export class UsersService {
     return this.usersRepository.findByUsername(username);
   }
 
-  async updateProfile(
-    id: number,
-    updateProfileDto: UpdateProfileDto,
-  ): Promise<User> {
+  async updateProfile(id: number, updateProfileDto: UpdateProfileDto): Promise<PublicUser> {
     const user = await this.findById(id);
     const { username, email, password } = updateProfileDto;
 
@@ -55,6 +49,13 @@ export class UsersService {
       user.password = await bcrypt.hash(password, 10);
     }
 
-    return this.usersRepository.save(user);
+    await this.usersRepository.save(user);
+
+    const updatedUser = await this.usersRepository.findByIdPublic(id);
+    if (!updatedUser) {
+      throw new NotFoundException('Không tìm thấy người dùng');
+    }
+
+    return updatedUser;
   }
 }

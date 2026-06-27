@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsInt, Min, IsOptional } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
 export class CreateGiftDto {
   @ApiProperty({
@@ -8,15 +8,17 @@ export class CreateGiftDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'Tên quà tặng không được để trống' })
+  @MaxLength(255, { message: 'Tên quà tặng tối đa 255 ký tự' })
   name: string;
 
   @ApiProperty({
     example: 'Voucher giảm giá 100.000đ trên Shopee',
-    description: 'Mô tả quà tặng (tùy chọn)',
+    description: 'Mô tả quà tặng (tùy chọn, mặc định rỗng)',
     required: false,
   })
-  @IsString()
   @IsOptional()
+  @IsString()
+  @MaxLength(2000, { message: 'Mô tả quà tặng tối đa 2000 ký tự' })
   description?: string;
 
   @ApiProperty({
@@ -24,7 +26,7 @@ export class CreateGiftDto {
     description: 'Số điểm cần để đổi quà (≥ 0)',
     minimum: 0,
   })
-  @IsInt()
+  @IsInt({ message: 'Điểm quy đổi phải là số nguyên' })
   @Min(0, { message: 'Điểm quy đổi phải lớn hơn hoặc bằng 0' })
   point: number;
 
@@ -33,7 +35,7 @@ export class CreateGiftDto {
     description: 'Số lượng quà có sẵn (≥ 0)',
     minimum: 0,
   })
-  @IsInt()
+  @IsInt({ message: 'Số lượng phải là số nguyên' })
   @Min(0, { message: 'Số lượng phải lớn hơn hoặc bằng 0' })
   quantity: number;
 }

@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { User } from '../users/entities/user.entity';
+import { UsersModule } from '../users/users.module';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -13,25 +12,19 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
-
+    UsersModule,
     PassportModule,
-
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: jwtConstants.secret,
         signOptions: {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          expiresIn: (process.env.JWT_EXPIRES_IN ?? '1d') as any,
+          expiresIn: (process.env.JWT_EXPIRES_IN ?? '1d') as `${number}${'s' | 'm' | 'h' | 'd'}`,
         },
       }),
     }),
   ],
-
   controllers: [AuthController],
-
   providers: [AuthService, JwtStrategy, JwtAuthGuard],
-
-  exports: [AuthService, JwtModule],
+  exports: [AuthService, JwtModule, JwtAuthGuard],
 })
 export class AuthModule {}

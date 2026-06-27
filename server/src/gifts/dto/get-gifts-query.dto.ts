@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class GetGiftsQueryDto {
   @ApiProperty({
@@ -25,6 +25,7 @@ export class GetGiftsQueryDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(100, { message: 'Số lượng item mỗi trang tối đa 100' })
   limit?: number = 10;
 
   @ApiProperty({

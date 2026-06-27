@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository, Like } from 'typeorm';
 import { Gift } from './entities/gift.entity';
 import { GetGiftsQueryDto } from './dto/get-gifts-query.dto';
+import { CreateGiftDto } from './dto/create-gift.dto';
+import { UpdateGiftDto } from './dto/update-gift.dto';
 
 @Injectable()
 export class GiftsService {
@@ -45,5 +47,24 @@ export class GiftsService {
       throw new NotFoundException(`Không tìm thấy quà tặng với ID ${id}`);
     }
     return gift;
+  }
+
+  async create(createGiftDto: CreateGiftDto): Promise<Gift> {
+    const gift = this.giftRepository.create({
+      ...createGiftDto,
+      description: createGiftDto.description ?? '',
+    });
+    return this.giftRepository.save(gift);
+  }
+
+  async update(id: number, updateGiftDto: UpdateGiftDto): Promise<Gift> {
+    const gift = await this.findOne(id);
+    Object.assign(gift, updateGiftDto);
+    return this.giftRepository.save(gift);
+  }
+
+  async remove(id: number): Promise<void> {
+    const gift = await this.findOne(id);
+    await this.giftRepository.remove(gift);
   }
 }
