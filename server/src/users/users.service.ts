@@ -7,7 +7,7 @@ import { PublicUser } from '../common/types/public-user.type';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(private readonly usersRepository: UsersRepository) { }
 
   async findById(id: number): Promise<User> {
     const user = await this.usersRepository.findByIdWithPassword(id);

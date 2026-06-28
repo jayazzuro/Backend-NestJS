@@ -39,7 +39,7 @@ import { Role } from '../common/enums/role.enum';
 @Roles(Role.ADMIN)
 @Controller('admin/gifts')
 export class AdminController {
-  constructor(private readonly giftsService: GiftsService) { }
+  constructor(private readonly giftsService: GiftsService) {}
 
   @Post()
   @ApiOperation({
