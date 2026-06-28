@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { UsersRepository } from './users.repository';
-import { User } from './entities/user.entity';
+
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { User } from './entities/user.entity';
+import { UsersRepository } from './users.repository';
 import { PublicUser } from '../common/types/public-user.type';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) { }
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   async findById(id: number): Promise<User> {
     const user = await this.usersRepository.findByIdWithPassword(id);

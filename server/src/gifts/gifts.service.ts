@@ -2,10 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository, Like } from 'typeorm';
 
-import { Gift } from './entities/gift.entity';
-import { GetGiftsQueryDto } from './dto/get-gifts-query.dto';
 import { CreateGiftDto } from './dto/create-gift.dto';
+import { GetGiftsQueryDto } from './dto/get-gifts-query.dto';
 import { UpdateGiftDto } from './dto/update-gift.dto';
+import { Gift } from './entities/gift.entity';
 
 @Injectable()
 export class GiftsService {

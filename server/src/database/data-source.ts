@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
 
-import { User } from '../users/entities/user.entity';
 import { Gift } from '../gifts/entities/gift.entity';
+import { User } from '../users/entities/user.entity';
 
 export default new DataSource({
   type: 'postgres',
