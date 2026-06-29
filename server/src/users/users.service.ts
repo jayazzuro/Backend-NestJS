@@ -5,6 +5,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { User } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
 import { PublicUser } from '../common/types/public-user.type';
+import { USER_MESSAGES } from '../common/constants/messages.constant';
 
 @Injectable()
 export class UsersService {
@@ -13,7 +14,7 @@ export class UsersService {
   async findById(id: number): Promise<User> {
     const user = await this.usersRepository.findByIdWithPassword(id);
     if (!user) {
-      throw new NotFoundException('Không tìm thấy người dùng');
+      throw new NotFoundException(USER_MESSAGES.NOT_FOUND);
     }
     return user;
   }
@@ -33,7 +34,7 @@ export class UsersService {
     if (username && username !== user.username) {
       const existingUsername = await this.findByUsername(username);
       if (existingUsername) {
-        throw new ConflictException('Tên đăng nhập đã tồn tại');
+        throw new ConflictException(USER_MESSAGES.USERNAME_EXISTS);
       }
       user.username = username;
     }
@@ -41,7 +42,7 @@ export class UsersService {
     if (email && email !== user.email) {
       const existingEmail = await this.findByEmail(email);
       if (existingEmail) {
-        throw new ConflictException('Email đã tồn tại');
+        throw new ConflictException(USER_MESSAGES.EMAIL_EXISTS);
       }
       user.email = email;
     }
@@ -54,9 +55,10 @@ export class UsersService {
 
     const updatedUser = await this.usersRepository.findByIdPublic(id);
     if (!updatedUser) {
-      throw new NotFoundException('Không tìm thấy người dùng');
+      throw new NotFoundException(USER_MESSAGES.NOT_FOUND);
     }
 
     return updatedUser;
   }
 }
+

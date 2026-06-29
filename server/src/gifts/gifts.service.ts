@@ -6,6 +6,8 @@ import { CreateGiftDto } from './dto/create-gift.dto';
 import { GetGiftsQueryDto } from './dto/get-gifts-query.dto';
 import { UpdateGiftDto } from './dto/update-gift.dto';
 import { Gift } from './entities/gift.entity';
+import { GiftResponseDto } from './dto/gift-response.dto';
+import { GIFT_MESSAGES } from '../common/constants/messages.constant';
 
 @Injectable()
 export class GiftsService {
@@ -13,6 +15,18 @@ export class GiftsService {
     @InjectRepository(Gift)
     private readonly giftRepository: Repository<Gift>,
   ) {}
+
+  private toDto(gift: Gift): GiftResponseDto {
+    return new GiftResponseDto({
+      id: gift.id,
+      name: gift.name,
+      description: gift.description,
+      point: gift.point,
+      quantity: gift.quantity,
+      createdAt: gift.createdAt,
+      updatedAt: gift.updatedAt,
+    });
+  }
 
   async findAll(query: GetGiftsQueryDto) {
     const { page = 1, limit = 10, search } = query;
@@ -23,7 +37,7 @@ export class GiftsService {
       where.name = Like(`%${search}%`);
     }
 
-    const [items, total] = await this.giftRepository.findAndCount({
+    const [gifts, total] = await this.giftRepository.findAndCount({
       where,
       skip,
       take: limit,
@@ -31,10 +45,10 @@ export class GiftsService {
     });
 
     return {
-      items,
+      items: gifts.map((g) => this.toDto(g)),
       meta: {
         totalItems: total,
-        itemCount: items.length,
+        itemCount: gifts.length,
         itemsPerPage: limit,
         totalPages: Math.ceil(total / limit),
         currentPage: page,
@@ -42,30 +56,38 @@ export class GiftsService {
     };
   }
 
-  async findOne(id: number): Promise<Gift> {
+  async findOne(id: number): Promise<GiftResponseDto> {
     const gift = await this.giftRepository.findOne({ where: { id } });
     if (!gift) {
-      throw new NotFoundException(`Không tìm thấy quà tặng với ID ${id}`);
+      throw new NotFoundException(GIFT_MESSAGES.NOT_FOUND_BY_ID(id));
     }
-    return gift;
+    return this.toDto(gift);
   }
 
-  async create(createGiftDto: CreateGiftDto): Promise<Gift> {
+  async create(createGiftDto: CreateGiftDto): Promise<GiftResponseDto> {
     const gift = this.giftRepository.create({
       ...createGiftDto,
       description: createGiftDto.description ?? '',
     });
-    return this.giftRepository.save(gift);
+    const saved = await this.giftRepository.save(gift);
+    return this.toDto(saved);
   }
 
-  async update(id: number, updateGiftDto: UpdateGiftDto): Promise<Gift> {
-    const gift = await this.findOne(id);
+  async update(id: number, updateGiftDto: UpdateGiftDto): Promise<GiftResponseDto> {
+    const gift = await this.giftRepository.findOne({ where: { id } });
+    if (!gift) {
+      throw new NotFoundException(GIFT_MESSAGES.NOT_FOUND_BY_ID(id));
+    }
     Object.assign(gift, updateGiftDto);
-    return this.giftRepository.save(gift);
+    const saved = await this.giftRepository.save(gift);
+    return this.toDto(saved);
   }
 
   async remove(id: number): Promise<void> {
-    const gift = await this.findOne(id);
+    const gift = await this.giftRepository.findOne({ where: { id } });
+    if (!gift) {
+      throw new NotFoundException(GIFT_MESSAGES.NOT_FOUND_BY_ID(id));
+    }
     await this.giftRepository.remove(gift);
   }
 }

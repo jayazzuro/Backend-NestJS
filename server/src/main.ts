@@ -1,8 +1,10 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+
+const logger = new Logger('Bootstrap');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,5 +24,6 @@ async function bootstrap() {
 }
 
 bootstrap().catch((err: unknown) => {
-  console.error(err);
+  logger.error('Application failed to start', err instanceof Error ? err.stack : String(err));
 });
+

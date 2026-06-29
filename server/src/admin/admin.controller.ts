@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { GIFT_MESSAGES } from '../common/constants/messages.constant';
 import { CreateGiftDto } from '../gifts/dto/create-gift.dto';
 import { GetGiftsQueryDto } from '../gifts/dto/get-gifts-query.dto';
 import { UpdateGiftDto } from '../gifts/dto/update-gift.dto';
@@ -32,7 +33,7 @@ export class AdminController {
   async create(@Body() createGiftDto: CreateGiftDto) {
     const gift = await this.giftsService.create(createGiftDto);
     return {
-      message: 'Tạo quà tặng thành công',
+      message: GIFT_MESSAGES.CREATE_SUCCESS,
       data: gift,
     };
   }
@@ -41,7 +42,7 @@ export class AdminController {
   async findAll(@Query() query: GetGiftsQueryDto) {
     const result = await this.giftsService.findAll(query);
     return {
-      message: 'Lấy danh sách quà tặng thành công',
+      message: GIFT_MESSAGES.GET_LIST_SUCCESS,
       data: result.items,
       meta: result.meta,
     };
@@ -51,7 +52,7 @@ export class AdminController {
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const gift = await this.giftsService.findOne(id);
     return {
-      message: 'Lấy thông tin quà tặng thành công',
+      message: GIFT_MESSAGES.GET_ONE_SUCCESS,
       data: gift,
     };
   }
@@ -60,17 +61,14 @@ export class AdminController {
   async update(@Param('id', ParseIntPipe) id: number, @Body() updateGiftDto: UpdateGiftDto) {
     const gift = await this.giftsService.update(id, updateGiftDto);
     return {
-      message: 'Cập nhật quà tặng thành công',
+      message: GIFT_MESSAGES.UPDATE_SUCCESS,
       data: gift,
     };
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.OK)
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.giftsService.remove(id);
-    return {
-      message: 'Xóa quà tặng thành công',
-    };
   }
 }
